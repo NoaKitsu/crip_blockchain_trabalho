@@ -1,0 +1,39 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_28-705d6dfd8e0ce7cd09bfc0634381bd2fd36674cf",
+  "solcVersion": "0.8.28",
+  "solcLongVersion": "0.8.28+commit.7893614a",
+  "userSourceNameMap": {
+    "contracts/Votacao.sol": "project/contracts/Votacao.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode",
+            "evm.deployedBytecode",
+            "evm.methodIdentifiers",
+            "metadata"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/Votacao.sol": {
+        "content": "// SPDX-License-Identifier: UNLICENSED\r\npragma solidity ^0.8.28;\r\n\r\ncontract Votacao {\r\n    struct OpcaoVoto {\r\n        string descricao;\r\n        uint256 qtdeVotos;\r\n    }\r\n\r\n    struct InfoEnquete{\r\n        string titulo;\r\n        address criador;\r\n        bool ativa;\r\n        OpcaoVoto[] opcoes;\r\n        mapping(address => bool) jaVotou;\r\n    }\r\n\r\n    mapping(uint256 => InfoEnquete) private enquetes;\r\n    uint256 private qtdeEnquetes;\r\n\r\n    event EnqueteCriada(uint256 idEnquete, string titulo, address criador);\r\n    event VotoRegistrado(uint256 idEnquete, uint256 indiceOpcao, address votante);\r\n    event EnqueteEncerrada(uint256 idEnquete, address criador);\r\n\r\n    function criarEnquete(string memory _titulo, string[] memory _opcoes) external {\r\n        require(_opcoes.length >= 2, unicode\"Precisa de ao menos 2 opções\");\r\n        \r\n        qtdeEnquetes++;\r\n        InfoEnquete storage novaEnquete = enquetes[qtdeEnquetes];\r\n        novaEnquete.titulo = _titulo;\r\n        novaEnquete.criador = msg.sender;\r\n        novaEnquete.ativa = true;\r\n\r\n        for (uint256 i = 0; i < _opcoes.length; i++) {\r\n            novaEnquete.opcoes.push(OpcaoVoto({descricao: _opcoes[i], qtdeVotos: 0}));\r\n\r\n        }\r\n\r\n        emit EnqueteCriada(qtdeEnquetes, _titulo, msg.sender);\r\n        \r\n    }\r\n\r\n    function votarEnquete(uint256 _idEnquete, uint256 _indiceOpcao) external {\r\n        InfoEnquete storage enquete = enquetes[_idEnquete];\r\n        require(enquete.ativa, unicode\"Enquete está encerrada\");\r\n        require(!enquete.jaVotou[msg.sender], unicode\"Seu voto ja foi computado\");\r\n        require(_indiceOpcao < enquete.opcoes.length, unicode\"Opcao Invalida\");\r\n\r\n        enquete.opcoes[_indiceOpcao].qtdeVotos++;\r\n        enquete.jaVotou[msg.sender] = true;\r\n\r\n        emit VotoRegistrado(_idEnquete, _indiceOpcao, msg.sender);\r\n    \r\n    }\r\n\r\n    function encerrarEnquete(uint256 _idEnquete) external {\r\n        InfoEnquete storage enquete = enquetes[_idEnquete];\r\n        require(enquete.ativa, unicode\"Enquete ja foi encerrada anteriormente\");\r\n        require(enquete.criador == msg.sender, unicode\"Somente o criador da enquete pode encerra-la\");\r\n\r\n        enquete.ativa = false;\r\n\r\n        emit EnqueteEncerrada(_idEnquete, msg.sender);\r\n    \r\n    }\r\n\r\n    function obterInfoEnquete(uint256 _idEnquete) external view returns(\r\n        string memory titulo,\r\n        bool ativa,\r\n        string[] memory descricaoOpcoes,\r\n        uint256[] memory votosOpcoes\r\n    )  {\r\n        InfoEnquete storage enquete = enquetes[_idEnquete];\r\n\r\n        uint256 qtdeOpcoes = enquete.opcoes.length;\r\n        descricaoOpcoes = new string[](qtdeOpcoes);\r\n        votosOpcoes = new uint256[](qtdeOpcoes);\r\n\r\n        for(uint256 i = 0; i < qtdeOpcoes; i++){\r\n            descricaoOpcoes[i] = enquete.opcoes[i].descricao;\r\n            votosOpcoes[i] = enquete.opcoes[i].qtdeVotos;\r\n        }\r\n\r\n        return (enquete.titulo, enquete.ativa, descricaoOpcoes, votosOpcoes);\r\n    }\r\n}\r\n"
+      }
+    }
+  }
+}

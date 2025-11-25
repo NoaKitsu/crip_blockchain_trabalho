@@ -2,10 +2,11 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { useState } from "react";
 import abi from "./abi/VotacaoABI.json";
 import { ethers } from "ethers";
+import "./App.css";
 
 async function getContract() {
   if (!window.ethereum) {
-    alert("MetaMask não detectada!");
+    alert("MetaMask não detectado! Instalar a extensão para utilizar o programa.");
     return null;
   }
 
@@ -21,33 +22,39 @@ export default function App() {
 
   async function conectarCarteira() {
     if (!window.ethereum) {
-      alert("MetaMask não detectada!");
+      alert("MetaMask não detectada! Instalar a extensão para utilizar o programa.");
       return;
     }
+
+    if (account) {
+      setAccount(null);
+      return;
+    }
+
     const contas = await window.ethereum.request({ method: "eth_requestAccounts" });
     setAccount(contas[0]);
   }
 
   return (
     <Router>
-      <div className="p-6 space-y-6">
-        <h1 className="text-2xl font-bold">DApp Votação</h1>
-        
-        <button onClick={conectarCarteira} className="p-2 bg-blue-400 rounded-xl text-white">
-          Conectar MetaMask
+      <div className="container">
+        <h1 className="title">DApp Votação</h1>
+
+        <button onClick={conectarCarteira} className="btn btn-primary">
+           {account ? "Desconectar" : "Conectar MetaMask"}
         </button>
 
         {account && (
-          <p className="mt-2 p-2 bg-green-200 rounded-xl">
+          <p className="connected-box">
             Conta conectada: <strong>{account}</strong>
           </p>
         )}
-        
-        <nav className="space-y-4 grid">
-          <Link className="p-4 bg-gray-200 rounded-xl" to="/buscar">Buscar Enquete</Link>
-          <Link className="p-4 bg-gray-200 rounded-xl" to="/criar">Criar Enquete</Link>
-          <Link className="p-4 bg-gray-200 rounded-xl" to="/votar">Votar</Link>
-          <Link className="p-4 bg-gray-200 rounded-xl" to="/encerrar">Encerrar Enquete</Link>
+
+        <nav className="menu">
+          <Link className="menu-item" to="/buscar">Buscar Enquete</Link>
+          <Link className="menu-item" to="/criar">Criar Enquete</Link>
+          <Link className="menu-item" to="/votar">Votar</Link>
+          <Link className="menu-item" to="/encerrar">Encerrar Enquete</Link>
         </nav>
 
         <Routes>
@@ -66,22 +73,23 @@ function BuscarEnquete() {
   const [info, setInfo] = useState(null);
 
   async function buscar() {
-  const c = await getContract();
-  const dados = await c.obterInfoEnquete(id);
-  setInfo({ titulo: dados[0], ativa: dados[1], opcoes: dados[2], votos: dados[3] });
+    const c = await getContract();
+    const dados = await c.obterInfoEnquete(id);
+    setInfo({ titulo: dados[0], ativa: dados[1], opcoes: dados[2], votos: dados[3] });
   }
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-bold">Buscar Enquete</h2>
-      <input className="border p-2" value={id} onChange={(e) => setId(e.target.value)} />
-      <button className="p-2 bg-blue-300 rounded" onClick={buscar}>Buscar</button>
+    <div className="page">
+      <h2 className="subtitle">Buscar Enquete</h2>
 
+      <input className="input" value={id} onChange={(e) => setId(e.target.value)} />
+      <button className="btn btn-primary" onClick={buscar}>Buscar</button>
 
       {info && (
-        <div className="mt-4">
-          <h3 className="font-semibold">{info.titulo}</h3>
+        <div className="card">
+          <h3 className="card-title">{info.titulo}</h3>
           <p>Status: {info.ativa ? "Ativa" : "Encerrada"}</p>
+
           {info.opcoes.map((op, i) => (
             <p key={i}>{op} — votos: {info.votos[i].toString()}</p>
           ))}
@@ -103,20 +111,22 @@ function CriarEnquete() {
       await tx.wait();
       alert("Enquete criada!");
     } catch (error) {
-    if (error.code === "ACTION_REJECTED") {
+      if (error.code === "ACTION_REJECTED") {
         alert("Você recusou a transação na MetaMask.");
-    } else {
+      } else {
         alert("Erro inesperado: " + error.message);
+      }
     }
-}
   }
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-bold">Criar Enquete</h2>
-      <input className="border p-2 w-full" placeholder="Titulo" value={titulo} onChange={(e) => setTitulo(e.target.value)} />
-      <input className="border p-2 w-full" placeholder="Opções separadas por vírgula" value={opcoes} onChange={(e) => setOpcoes(e.target.value)} />
-      <button className="p-2 bg-green-300 rounded" onClick={criar}>Criar</button>
+    <div className="page">
+      <h2 className="subtitle">Criar Enquete</h2>
+
+      <input className="input" placeholder="Título" value={titulo} onChange={(e) => setTitulo(e.target.value)} />
+      <input className="input" placeholder="Opções separadas por vírgula" value={opcoes} onChange={(e) => setOpcoes(e.target.value)} />
+
+      <button className="btn btn-success" onClick={criar}>Criar</button>
     </div>
   );
 }
@@ -131,21 +141,23 @@ function VotarEnquete() {
       const tx = await c.votarEnquete(Number(id), Number(opcao));
       await tx.wait();
       alert("Voto registrado!");
-      } catch (error) {
-    if (error.code === "ACTION_REJECTED") {
+    } catch (error) {
+      if (error.code === "ACTION_REJECTED") {
         alert("Você recusou a transação na MetaMask.");
-    } else {
+      } else {
         alert("Erro inesperado: " + error.message);
+      }
     }
-}
   }
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-bold">Votar</h2>
-      <input className="border p-2" placeholder="ID" value={id} onChange={(e) => setId(e.target.value)} />
-      <input className="border p-2" placeholder="Opção (índice)" value={opcao} onChange={(e) => setOpcao(e.target.value)} />
-      <button className="p-2 bg-yellow-300 rounded" onClick={votar}>Votar</button>
+    <div className="page">
+      <h2 className="subtitle">Votar</h2>
+
+      <input className="input" placeholder="ID" value={id} onChange={(e) => setId(e.target.value)} />
+      <input className="input" placeholder="Opção (índice)" value={opcao} onChange={(e) => setOpcao(e.target.value)} />
+
+      <button className="btn btn-warning" onClick={votar}>Votar</button>
     </div>
   );
 }
@@ -160,19 +172,21 @@ function EncerrarEnquete() {
       await tx.wait();
       alert("Enquete encerrada!");
     } catch (error) {
-    if (error.code === "ACTION_REJECTED") {
+      if (error.code === "ACTION_REJECTED") {
         alert("Você recusou a transação na MetaMask.");
-    } else {
+      } else {
         alert("Erro inesperado: " + error.message);
+      }
     }
-}
   }
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-bold">Encerrar Enquete</h2>
-      <input className="border p-2" placeholder="ID" value={id} onChange={(e) => setId(e.target.value)} />
-      <button className="p-2 bg-red-300 rounded" onClick={encerrar}>Encerrar</button>
+    <div className="page">
+      <h2 className="subtitle">Encerrar Enquete</h2>
+
+      <input className="input" placeholder="ID" value={id} onChange={(e) => setId(e.target.value)} />
+
+      <button className="btn btn-danger" onClick={encerrar}>Encerrar</button>
     </div>
   );
 }

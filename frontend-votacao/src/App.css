@@ -1,38 +1,113 @@
-.App {
+.container {
+  padding: 24px;
+  max-width: 700px;
+  margin: auto;
+  font-family: Arial, sans-serif;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.connected-box {
+  background: #1ae41a;
+  padding: 12px;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
+/* Navegação */
+.menu {
+  display: grid;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.menu-item {
+  padding: 12px;
+  background: #eee;
+  border-radius: 10px;
+  text-decoration: none;
+  color: #1b1b1b;
   text-align: center;
+  font-weight: bold;
+  transition: 0.2s;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.menu-item:hover {
+  background: #ddd;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.page {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  gap: 12px;
+}
+
+.subtitle {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.input {
+  padding: 10px;
+  border: 1px solid #bbb;
+  border-radius: 8px;
+  width: 100%;
+}
+
+.btn {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.btn-primary {
+  background: #2d7efb;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.btn-primary:hover {
+  background: #1b63d6;
+}
+
+.btn-success {
+  background: #30c46d;
+}
+
+.btn-success:hover {
+  background: #26a75a;
+}
+
+.btn-warning {
+  background: #f2c23e;
+  color: black;
+}
+
+.btn-warning:hover {
+  background: #d6a92f;
+}
+
+.btn-danger {
+  background: #e44c4c;
+}
+
+.btn-danger:hover {
+  background: #c03939;
+}
+
+.card {
+  background: #fafafa;
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: bold;
 }

@@ -2,6 +2,7 @@
 pragma solidity ^0.8.28;
 
 contract Votacao {
+    //construindo structs das enquetes
     struct OpcaoVoto {
         string descricao;
         uint256 qtdeVotos;
@@ -18,10 +19,12 @@ contract Votacao {
     mapping(uint256 => InfoEnquete) private enquetes;
     uint256 private qtdeEnquetes;
 
+    //criando eventos
     event EnqueteCriada(uint256 idEnquete, string titulo, address criador);
     event VotoRegistrado(uint256 idEnquete, uint256 indiceOpcao, address votante);
     event EnqueteEncerrada(uint256 idEnquete, address criador);
 
+    //funcao que cria enquetes
     function criarEnquete(string memory _titulo, string[] memory _opcoes) external {
         require(_opcoes.length >= 2, unicode"Precisa de ao menos 2 opções");
         
@@ -40,6 +43,7 @@ contract Votacao {
         
     }
 
+    //funcao de voto nas enquetes
     function votarEnquete(uint256 _idEnquete, uint256 _indiceOpcao) external {
         InfoEnquete storage enquete = enquetes[_idEnquete];
         require(enquete.ativa, unicode"Enquete está encerrada");
@@ -53,6 +57,7 @@ contract Votacao {
     
     }
 
+    //funcao que finaliza uma enquete
     function encerrarEnquete(uint256 _idEnquete) external {
         InfoEnquete storage enquete = enquetes[_idEnquete];
         require(enquete.ativa, unicode"Enquete ja foi encerrada anteriormente");
@@ -64,6 +69,7 @@ contract Votacao {
     
     }
 
+    //funcao que busca certa enquete
     function obterInfoEnquete(uint256 _idEnquete) external view returns(
         string memory titulo,
         bool ativa,

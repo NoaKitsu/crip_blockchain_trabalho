@@ -4,6 +4,7 @@ import abi from "./abi/VotacaoABI.json";
 import { ethers } from "ethers";
 import "./App.css";
 
+//funcao que verifica se o usuário possui o metamask e obtem o contrato da aplicacao
 async function getContract() {
   if (!window.ethereum) {
     alert("MetaMask não detectado! Instalar a extensão para utilizar o programa.");
@@ -17,9 +18,11 @@ async function getContract() {
   return new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
 }
 
+//app react
 export default function App() {
   const [account, setAccount] = useState(null);
 
+  //conecta a carteira do usuario
   async function conectarCarteira() {
     if (!window.ethereum) {
       alert("MetaMask não detectada! Instalar a extensão para utilizar o programa.");
@@ -35,11 +38,11 @@ export default function App() {
     setAccount(contas[0]);
   }
 
+  //frontend pagina inicial
   return (
     <Router>
       <div className="container">
         <h1 className="title">DApp Votação</h1>
-
         <button onClick={conectarCarteira} className="btn btn-primary">
            {account ? "Desconectar" : "Conectar MetaMask"}
         </button>
@@ -68,6 +71,7 @@ export default function App() {
   );
 }
 
+//funcao que busca a enquete
 function BuscarEnquete() {
   const [id, setId] = useState("");
   const [info, setInfo] = useState(null);
@@ -99,6 +103,7 @@ function BuscarEnquete() {
   );
 }
 
+//funcao que cria a enquete
 function CriarEnquete() {
   const [titulo, setTitulo] = useState("");
   const [opcoes, setOpcoes] = useState("");
@@ -131,6 +136,7 @@ function CriarEnquete() {
   );
 }
 
+//funcao que vota na enquete escolhida 
 function VotarEnquete() {
   const [id, setId] = useState("");
   const [opcao, setOpcao] = useState("");
@@ -162,6 +168,7 @@ function VotarEnquete() {
   );
 }
 
+//funcao que encerra a enquete escolhida
 function EncerrarEnquete() {
   const [id, setId] = useState("");
 
